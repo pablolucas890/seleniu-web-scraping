@@ -17,7 +17,7 @@ def calcular_porcentagem_de_azul(imagem):
 
 with open("links.txt", "a") as arquivo:
 
-    for i in range(limit):
+    for i in range(1000, 2000):
         try:
             url = "https://ted.transferegov.sistema.gov.br/ted/programa/detalhe/"+str(i)+"/beneficiarios"
             driver.get(url)
