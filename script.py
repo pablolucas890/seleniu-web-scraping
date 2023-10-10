@@ -3,7 +3,8 @@ import time
 from PIL import Image
 import io
 
-limit = 1000
+limit_inferior = 1000
+limit_superior = 2000
 
 driver = webdriver.Chrome()
 
@@ -17,7 +18,7 @@ def calcular_porcentagem_de_azul(imagem):
 
 with open("links.txt", "a") as arquivo:
 
-    for i in range(1000, 2000):
+    for i in range(limit_inferior, limit_superior):
         try:
             url = "https://ted.transferegov.sistema.gov.br/ted/programa/detalhe/"+str(i)+"/beneficiarios"
             driver.get(url)
