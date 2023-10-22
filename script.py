@@ -59,17 +59,26 @@ for i in range(limit_inferior, limit_superior):
 
         porcentagem_azul = calcular_porcentagem_de_azul(cropped_image)
         print(f"A porcentagem de azul na imagem {i} é: {porcentagem_azul:.2f}%")
+        content = ""
+        with open(file, "r") as arquivo_html:
+            content = arquivo_html.read()
+        linhas = content.split('\n')
         if porcentagem_azul >= 3.4 and porcentagem_azul <=4:
             cropped_image.save("images/" + str(i) + ".png")
-            content = ""
-            with open(file, "r") as arquivo_html:
-                content = arquivo_html.read()
             if not url in content:
                 with open(file, "a") as arquivo_html:
-                    paragrafo = f"\n<p><a class='list-group-item list-group-item-action list-group-item-primary' href='{url}'>Chamada {i}</a></p>"
+                    paragrafo = f"<p><a class='list-group-item list-group-item-action list-group-item-primary' href='{url}'>Chamada {i}</a></p>\n"
                     arquivo_html.write(paragrafo)
                 with open(file, "rb") as arquivo_html:
                     ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
+        elif url in content:
+            with open(file, "w") as arquivo_modificado:
+                for linha in linhas:
+                    if url not in linha:
+                        arquivo_modificado.write(linha + '\n')
+            with open(file, "rb") as arquivo_html:
+                ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
+
     except Exception as e:
         print("Erro com o " + str(i) + ": " + str(e))
 
