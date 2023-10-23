@@ -4,6 +4,11 @@ from PIL import Image
 import io
 from ftplib import FTP
 import json
+from selenium.webdriver.chrome.options import Options
+
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu') 
 
 with open("cfg.json", "r") as cfg_json:
     cfg = json.loads(cfg_json.read())
@@ -23,7 +28,7 @@ print('Logado')
 limit_inferior = cfg['limit_inferior']
 limit_superior = cfg['limit_superior']
 
-driver = webdriver.Chrome()
+driver = webdriver.Chrome(options=chrome_options)
 
 def calcular_porcentagem_de_azul(imagem):
     pixels = imagem.getdata()
@@ -53,7 +58,7 @@ for i in range(limit_inferior, limit_superior):
 
         screenshot = driver.get_screenshot_as_png()
         full_image = Image.open(io.BytesIO(screenshot))
-        x1, y1, x2, y2 = 100, 0, 500, 70
+        x1, y1, x2, y2 = 0, 0, 500, 70
         cropped_image = full_image.crop((x1, y1, x2, y2))
         time.sleep(1)
 
@@ -63,7 +68,7 @@ for i in range(limit_inferior, limit_superior):
         with open(file, "r") as arquivo_html:
             content = arquivo_html.read()
         linhas = content.split('\n')
-        if porcentagem_azul >= 3.4 and porcentagem_azul <=4:
+        if porcentagem_azul >= 1.5 and porcentagem_azul <= 1.8:
             cropped_image.save("images/" + str(i) + ".png")
             if not url in content:
                 with open(file, "a") as arquivo_html:
