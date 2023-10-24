@@ -5,10 +5,11 @@ import io
 from ftplib import FTP
 import json
 from selenium.webdriver.chrome.options import Options
+from datetime import datetime
 
 chrome_options = Options()
 chrome_options.add_argument('--headless')
-chrome_options.add_argument('--disable-gpu') 
+chrome_options.add_argument('--disable-gpu')
 
 with open("cfg.json", "r") as cfg_json:
     cfg = json.loads(cfg_json.read())
@@ -18,12 +19,6 @@ host = cfg['host']
 usuario = cfg['usuario']
 senha = cfg['senha']
 arquivo_remoto = cfg['arquivo_remoto']
-
-print('Logando no servidor via FTP')
-print(usuario, senha)
-ftp = FTP(host)
-ftp.login(usuario, senha)
-print('Logado')
 
 limit_inferior = cfg['limit_inferior']
 limit_superior = cfg['limit_superior']
@@ -67,25 +62,42 @@ for i in range(limit_inferior, limit_superior):
         content = ""
         with open(file, "r") as arquivo_html:
             content = arquivo_html.read()
+        old_content = content
         linhas = content.split('\n')
-        if porcentagem_azul >= 1.5 and porcentagem_azul <= 1.8:
-            cropped_image.save("images/" + str(i) + ".png")
-            if not url in content:
+        div_date_elements = driver.find_elements("css selector", "div.br-input")
+        input_date_element = div_date_elements[1].find_element("css selector", "input")
+        valor_do_input = input_date_element.get_attribute("value")
+        data_do_input_obj = ""
+        if valor_do_input:
+            print('Data Final: ' + valor_do_input)
+            data_do_input_obj = datetime.strptime(valor_do_input, "%d/%m/%Y")
+            data_atual = datetime.now()
+            if porcentagem_azul >= 1.5 and porcentagem_azul <= 1.8 and data_do_input_obj > data_atual and not url in content:
                 with open(file, "a") as arquivo_html:
                     paragrafo = f"<p><a class='list-group-item list-group-item-action list-group-item-primary' href='{url}'>Chamada {i}</a></p>\n"
                     arquivo_html.write(paragrafo)
                 with open(file, "rb") as arquivo_html:
+                    ftp = FTP(host)
+                    ftp.login(usuario, senha)
                     ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
-        elif url in content:
-            with open(file, "w") as arquivo_modificado:
-                for linha in linhas:
-                    if url not in linha:
-                        arquivo_modificado.write(linha + '\n')
-            with open(file, "rb") as arquivo_html:
-                ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
+                    ftp.quit()
+            elif url in content and data_do_input_obj < data_atual:
+                with open(file, "w") as arquivo_modificado:
+                    for linha in linhas:
+                        if url not in linha:
+                            arquivo_modificado.write(linha + '\n')
+                with open(file, "rb") as arquivo_html:
+                    ftp = FTP(host)
+                    ftp.login(usuario, senha)
+                    ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
+                    ftp.quit()
 
     except Exception as e:
         print("Erro com o " + str(i) + ": " + str(e))
+        print("Descartando as alterações...")
+        ftp.quit()
+        with open(file, "w") as arquivo_modificado:
+            arquivo_modificado.write(old_content)
 
 ftp.quit()
 driver.quit()
