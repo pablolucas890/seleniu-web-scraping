@@ -1,0 +1,22 @@
+{
+  "name": "ted",
+  "version": "1.0.0",
+  "description": "This is an example Python program that demonstrates web scraping and image analysis using the Selenium library. The program accesses a list of URLs, captures screenshots of web pages, extracts a region of interest, and analyzes the presence of blue tones in the images.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pablolucas890/seleniu-web-scraping.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pablolucas890/seleniu-web-scraping/issues"
+  },
+  "homepage": "https://github.com/pablolucas890/seleniu-web-scraping#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

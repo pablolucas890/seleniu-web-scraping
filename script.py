@@ -76,28 +76,16 @@ for i in range(limit_inferior, limit_superior):
                 with open(file, "a") as arquivo_html:
                     paragrafo = f"<p><a class='list-group-item list-group-item-action list-group-item-primary' href='{url}'>Chamada {i}</a></p>\n"
                     arquivo_html.write(paragrafo)
-                with open(file, "rb") as arquivo_html:
-                    ftp = FTP(host)
-                    ftp.login(usuario, senha)
-                    ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
-                    ftp.quit()
             elif url in content and data_do_input_obj < data_atual:
                 with open(file, "w") as arquivo_modificado:
                     for linha in linhas:
                         if url not in linha:
                             arquivo_modificado.write(linha + '\n')
-                with open(file, "rb") as arquivo_html:
-                    ftp = FTP(host)
-                    ftp.login(usuario, senha)
-                    ftp.storbinary(f"STOR {arquivo_remoto}", arquivo_html)
-                    ftp.quit()
 
     except Exception as e:
         print("Erro com o " + str(i) + ": " + str(e))
         print("Descartando as alterações...")
-        ftp.quit()
         with open(file, "w") as arquivo_modificado:
             arquivo_modificado.write(old_content)
 
-ftp.quit()
 driver.quit()
