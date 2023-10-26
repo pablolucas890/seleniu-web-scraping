@@ -6,6 +6,12 @@ from ftplib import FTP
 import json
 from selenium.webdriver.chrome.options import Options
 from datetime import datetime
+import logging
+import logging.config
+import os
+
+dirname = os.path.dirname(os.path.abspath(__file__)) + '/'
+logging.config.fileConfig(dirname + 'logging.conf')
 
 chrome_options = Options()
 chrome_options.add_argument('--headless')
@@ -58,7 +64,7 @@ for i in range(limit_inferior, limit_superior):
         time.sleep(1)
 
         porcentagem_azul = calcular_porcentagem_de_azul(cropped_image)
-        print(f"A porcentagem de azul na imagem {i} é: {porcentagem_azul:.2f}%")
+        logging.debug(f"A porcentagem de azul na imagem {i} é: {porcentagem_azul:.2f}%")
         content = ""
         with open(file, "r") as arquivo_html:
             content = arquivo_html.read()
@@ -69,7 +75,7 @@ for i in range(limit_inferior, limit_superior):
         valor_do_input = input_date_element.get_attribute("value")
         data_do_input_obj = ""
         if valor_do_input:
-            print('Data Final: ' + valor_do_input)
+            logging.debug('Data Final: ' + valor_do_input)
             data_do_input_obj = datetime.strptime(valor_do_input, "%d/%m/%Y")
             data_atual = datetime.now()
             if porcentagem_azul >= 1.5 and porcentagem_azul <= 1.8 and data_do_input_obj > data_atual and not url in content:
@@ -83,8 +89,8 @@ for i in range(limit_inferior, limit_superior):
                             arquivo_modificado.write(linha + '\n')
 
     except Exception as e:
-        print("Erro com o " + str(i) + ": " + str(e))
-        print("Descartando as alterações...")
+        logging.error("Erro com o " + str(i) + ": " + str(e))
+        logging.debug("Descartando as alterações...")
         with open(file, "w") as arquivo_modificado:
             arquivo_modificado.write(old_content)
 
