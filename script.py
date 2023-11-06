@@ -30,6 +30,7 @@ limit_inferior = cfg['limit_inferior']
 limit_superior = cfg['limit_superior']
 
 driver = webdriver.Chrome(options=chrome_options)
+driver2 = webdriver.Chrome(options=chrome_options)
 
 def calcular_porcentagem_de_azul(imagem):
     pixels = imagem.getdata()
@@ -43,6 +44,8 @@ for i in range(limit_inferior, limit_superior):
     try:
         url = "https://ted.transferegov.sistema.gov.br/ted/programa/detalhe/"+str(i)+"/beneficiarios"
         driver.get(url)
+        url2 = "https://ted.transferegov.sistema.gov.br/ted/programa/detalhe/"+str(i)+"/dados-basicos"
+        driver2.get(url2)
 
         time.sleep(1)
 
@@ -79,8 +82,10 @@ for i in range(limit_inferior, limit_superior):
             data_do_input_obj = datetime.strptime(valor_do_input, "%d/%m/%Y")
             data_atual = datetime.now()
             if porcentagem_azul >= 1.5 and porcentagem_azul <= 1.8 and data_do_input_obj > data_atual and not url in content:
+                inputs = driver2.find_elements("css selector", "input.ng-untouched.ng-pristine.ng-valid")
+                nome = inputs[3].get_attribute("value")
                 with open(file, "a") as arquivo_html:
-                    paragrafo = f"<p><a class='list-group-item list-group-item-action list-group-item-primary' href='{url}'>Chamada {i}</a></p>\n"
+                    paragrafo = f"<p><a class='list-group-item list-group-item-action list-group-item-primary' href='{url}'>Chamada {i} - {nome} <strong>(Até {valor_do_input})</strong></a></p>\n"
                     arquivo_html.write(paragrafo)
             elif url in content and data_do_input_obj < data_atual:
                 with open(file, "w") as arquivo_modificado:
@@ -90,8 +95,6 @@ for i in range(limit_inferior, limit_superior):
 
     except Exception as e:
         logging.error("Erro com o " + str(i) + ": " + str(e))
-        logging.debug("Descartando as alterações...")
-        with open(file, "w") as arquivo_modificado:
-            arquivo_modificado.write(old_content)
 
 driver.quit()
+driver2.quit()
